@@ -1,6 +1,6 @@
 services:
   ros2:
-    container_name: ros2_humble_development
+    container_name: ros2_humble_development_rafael_roda
     image: h3ct0rdcc/ros2_humble_development
     platform: linux/amd64
     build:
@@ -8,8 +8,13 @@ services:
       dockerfile: docker/Dockerfile.amd64
       tags:
         - "h3ct0rdcc/ros2_humble_development:amd64"
+      args:
+        USER_UID: "${LOCAL_UID:-1000}"
+        USER_GID: "${LOCAL_GID:-1000}"
     extra_hosts:
       - "ros2_docker:127.0.0.1"
+    #ports:
+      #- "127.0.0.1:3080:3080"
     ipc: host
     pid: host
     privileged: true
