@@ -26,6 +26,8 @@ services:
       - DEBIAN_FRONTEND=noninteractive
       - ROS_AUTOMATIC_DISCOVERY_RANGE=localhost
       - DOCKER_DEFAULT_PLATFORM=linux/amd64
+      - LOCAL_UID=${LOCAL_UID:-1000}
+      - LOCAL_GID=${LOCAL_GID:-1000}
     volumes:
       - ./local_mount/:/home/ubuntu/ros2_ws
       - /etc/localtime:/etc/localtime:ro

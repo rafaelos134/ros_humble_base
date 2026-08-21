@@ -6,5 +6,11 @@ RUN sudo rm -rf /var/lib/apt/lists/*
 # Enable apt-get completion after running `apt-get update` in the container
 RUN sudo rm /etc/apt/apt.conf.d/docker-clean
 
+# Run as root so entrypoint.sh can remap the ubuntu user's UID/GID to match
+# the host user at container start (see entrypoint.sh); it drops to ubuntu
+# via gosu for the workspace build and supervisord already runs its
+# ubuntu-owned programs the same way.
+USER root
+
 ENTRYPOINT [ "/entrypoint.sh" ]
-CMD [ "sudo", "-E", "/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]
+CMD [ "/usr/bin/supervisord", "-c", "/etc/supervisor/supervisord.conf"]

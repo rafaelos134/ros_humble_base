@@ -1,0 +1,59 @@
+services:
+  ros2:
+    container_name: ros2_humble_development
+    image: ros2_humble_development
+    platform: linux/amd64
+    build:
+      context: .
+      dockerfile: docker/Dockerfile.amd64
+      tags:
+        - "h3ct0rdcc/ros2_humble_development:amd64"
+    hostname: ros2_docker
+    extra_hosts:
+      - "ros2_docker:127.0.0.1"
+    ipc: host
+    pid: host
+    # Rootless Docker cannot grant real host privileges: `privileged: true`,
+    # `device_cgroup_rules` and a raw `/dev:/dev` bind mount rely on cgroup
+    # device-controller delegation and host device ownership that a rootless
+    # dockerd does not have, and can make the container fail to start.
+    # `network_mode: host` is also unsupported in rootless mode (the "host"
+    # namespace it joins is the rootlesskit netns, not the real host), so
+    # published ports below are required to reach VNC/code-server/ssh from
+    # outside the container.
+    network_mode: bridge
+    ports:
+      - "3080:3080" # noVNC (browser)
+      - "3081:3081" # code-server
+      - "3022:3022" # ssh
+      - "5902:5902" # raw VNC client
+    environment:
+      - TZ=${TZ:-UTC}
+      - DEBIAN_FRONTEND=noninteractive
+      - ROS_AUTOMATIC_DISCOVERY_RANGE=localhost
+      - DOCKER_DEFAULT_PLATFORM=linux/amd64
+      - NVIDIA_DRIVER_CAPABILITIES=all
+      - LOCAL_UID=${LOCAL_UID:-1000}
+      - LOCAL_GID=${LOCAL_GID:-1000}
+    volumes:
+      - ./local_mount/:/home/ubuntu/ros2_ws
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    sysctls:
+      - "net.ipv6.conf.all.disable_ipv6=1"
+      - "net.ipv6.conf.default.disable_ipv6=1"
+      - "net.ipv6.conf.lo.disable_ipv6=1"
+    cap_add:
+      - SYS_PTRACE
+    # Requires the rootless dockerd's own daemon.json to have been configured with
+    # `nvidia-ctk runtime configure --runtime=docker --config=<rootless daemon.json>`
+    # (as the docker-rootless-create-dir helper already does), so the "nvidia"
+    # runtime below is registered for that user's rootless daemon.
+    runtime: nvidia
+    deploy:
+      resources:
+        reservations:
+          devices:
+            - driver: nvidia
+              capabilities: [gpu]
+              count: 1

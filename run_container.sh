@@ -6,6 +6,8 @@ usage() {
 Usage:
   ./run_container.sh linux
   ./run_container.sh nvidia
+  ./run_container.sh rasp
+  ./run_container.sh rootless
 
 Description:
   Exports LOCAL_UID and LOCAL_GID from the current host user,
@@ -24,6 +26,12 @@ case "$1" in
     ;;
   nvidia)
     COMPOSE_FILE="compose_linux_nvidia.yaml"
+    ;;
+  rasp)
+    COMPOSE_FILE="compose_raspberrypi5.yaml"
+    ;;
+  rootless)
+    COMPOSE_FILE="compose_linux_rootless.yaml"
     ;;
   -h|--help)
     usage

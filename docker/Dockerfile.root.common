@@ -77,7 +77,9 @@ RUN apt-get update && apt-get install -y \
     htop \
     gdb \
     unzip \
-    libspdlog-dev
+    libspdlog-dev \
+    gnupg2 \
+    lsb-release
 
 # Install test packages
 RUN apt-get update && apt-get install -y \
@@ -104,12 +106,6 @@ RUN su ${USERNAME} -c "rosdep update"; \
 RUN apt-get update && apt-get install -y --no-install-recommends git-core bash-completion \
   && echo "if [ -f /opt/ros/${ROS_DISTRO}/setup.bash ]; then source /opt/ros/${ROS_DISTRO}/setup.bash; fi" >> /home/$USERNAME/.bashrc \
   && echo "if [ -f /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash ]; then source /usr/share/colcon_argcomplete/hook/colcon-argcomplete.bash; fi" >> /home/$USERNAME/.bashrc
-
-# Install gz
-RUN curl https://packages.osrfoundation.org/gazebo.gpg --output /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg && \
-    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null && \
-    apt-get update && declare -A version=(["rolling"]="ionic" ["jazzy"]="harmonic" ["iron"]="fortress") && \
-    apt-get install -y ros-humble-ros-gz --no-install-recommends
 
 # Install livox SDK2
 COPY third_party_pkgs/livox_sdk_v1.2.5.zip /tmp/livox_sdk_v1.2.5.zip

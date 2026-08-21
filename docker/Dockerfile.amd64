@@ -8,6 +8,13 @@ INCLUDE+ docker/Dockerfile.root.common
 RUN apt-get update && apt-get install -y \
     "ros-humble-turtlebot3*"
 
+# Install gz (ros-humble-ros-gz depends on ros-gz-sim, which is only published
+# for amd64 on the ROS apt repo — not available for arm64/Raspberry Pi builds)
+RUN curl https://packages.osrfoundation.org/gazebo.gpg --output /usr/share/keyrings/pkgs-osrf-archive-keyring.gpg && \
+    echo "deb [arch=$(dpkg --print-architecture) signed-by=/usr/share/keyrings/pkgs-osrf-archive-keyring.gpg] http://packages.osrfoundation.org/gazebo/ubuntu-stable $(lsb_release -cs) main" | tee /etc/apt/sources.list.d/gazebo-stable.list > /dev/null && \
+    apt-get update && declare -A version=(["rolling"]="ionic" ["jazzy"]="harmonic" ["iron"]="fortress") && \
+    apt-get install -y ros-humble-ros-gz --no-install-recommends
+
 # vscode server
 RUN  curl -fOL https://github.com/coder/code-server/releases/download/v4.104.2/code-server_4.104.2_amd64.deb && \
     dpkg -i code-server_4.104.2_amd64.deb && \
